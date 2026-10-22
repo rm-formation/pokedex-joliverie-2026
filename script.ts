@@ -51,7 +51,36 @@ function afficherAccueil() {
     `;
 }
 
-const mockPokemons = [
+function afficherPokedex() {
+    main.innerHTML = "Pokedex";
+}
+
+function afficherFavoris() {
+    main.innerHTML = "Favoris";
+}
+
+function afficherFichePokemon(pokemon:Pokemon) {
+    main.innerHTML = "Fiche Pokemon";
+}
+
+type Pokemon = {
+    id:number,
+    nom:string,
+    urlImage:string,
+    pv:number,
+    attaque:number,
+    defense:number,
+    vitesse:number,
+    special:number,
+    type1:string,
+    type2:string|null,
+    genreEspece:string,
+    taille:number,
+    poids:number,
+    description:string,
+};
+
+const mockPokemons:Array<Pokemon> = [
     {
         id: 25,
         nom: "Pikachu",
@@ -68,35 +97,4 @@ const mockPokemons = [
         poids: 60,
         description: "Pikachu a de petites poches pleines d’électricité sur\nses joues. S’il se sent menacé, il laisse s’échapper\ndes décharges électriques."
     }
-]
-
-function afficherPokedex() {
-    main.innerHTML = "Pokedex";
-}
-
-function afficherFavoris() {
-    main.innerHTML = "Favoris";
-}
-
-function afficherFichePokemon(pokemon:Pokemon) {
-
-}
-
-
-
-type Pokemon = {
-    id:number,
-    nom:string,
-    urlImage:string,
-    pv:number,
-    attaque:number,
-    defense:number,
-    vitesse:number,
-    special:number,
-    type1:string,
-    type2:string,
-    genreEspece:string,
-    taille:number,
-    poids:number,
-    description:string,
-};
+];
