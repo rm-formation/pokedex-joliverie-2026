@@ -19,6 +19,8 @@ function initialisation() {
     boutonFavoris.addEventListener("click", () => { naviguer(Pages.favoris) });
 
     naviguer(Pages.accueil);
+
+    document.querySelector("footer")?.addEventListener("click", dinosaure);
 }
 
 function naviguer(page:Pages) {
@@ -229,3 +231,160 @@ const mockPokemons:Array<Pokemon> = [
         description: "Pikachu a de petites poches pleines d’électricité sur\nses joues. S’il se sent menacé, il laisse s’échapper\ndes décharges électriques."
     }
 ];
+
+function dinosaure() {
+    const horizontalSpeed = 4;
+    const gravity = 7;
+    const jumpVelocity = 20;
+    let debug = false;
+    const pikachu = {
+        div: document.createElement("div") as HTMLElement,
+        y: 0,
+        velocityY: 0
+    };
+
+    main.innerHTML = "";
+    
+    const conteneur = document.createElement("div");
+    conteneur.classList.add("conteneurDinosaure");
+    conteneur.innerHTML = `
+        <div class="pikachu">
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-i/red-blue/transparent/25.png">
+            <div class="hitbox"></div>
+        </div>
+        <div class="sol"></div>
+        <div class="gameOverText">Game Over</div>
+    `;
+    pikachu.div = conteneur.querySelector(".pikachu")! as HTMLElement;
+    conteneur.style.setProperty("--horizontalSpeed", `${horizontalSpeed}s`);
+    main.append(conteneur);
+    setTimeout(() => {
+        conteneur.style.setProperty("--conteneurWidth", `${conteneur.getBoundingClientRect().width}px`);
+    })
+
+    
+
+    const keydownListener = (e:KeyboardEvent) => {
+        // console.log(`Keydown e.key:${e.key} e.keycode:${e.keyCode} e.code:${e.code}`);
+        if (e.key === ' ') {
+            if (pikachu.y === 0) {
+                pikachu.velocityY = jumpVelocity;
+            }
+        }
+        if (e.key === 'Escape') {
+            gameOver();
+        }
+        if (e.key === 'r') {
+            gameOver();
+            dinosaure();
+        }
+        if (e.key === 'd') {
+            debug = !debug;
+            conteneur.classList.toggle("debug");
+        }
+    }
+    document.addEventListener("keydown", keydownListener);
+    
+    let isGameOver = false;
+    let frameCount = 0;
+    let timeouts:Array<number> = [];
+    let movingItems:Set<HTMLDivElement> = new Set();
+    let liveItems:Set<HTMLDivElement> = new Set();
+    let nextCaillou = 5;
+    let nextCactus = 240;
+    const dinosaureLoop = () => {
+        if (isGameOver) {
+            return;
+        }
+        frameCount++;
+
+        pikachu.y += pikachu.velocityY;
+        pikachu.velocityY -= 1;
+        if (pikachu.velocityY < 0) {
+            pikachu.velocityY = 0;
+        }
+
+        pikachu.y -= gravity;
+        if (pikachu.y < 0) {
+            pikachu.y = 0;
+        }
+
+        pikachu.div.style.setProperty("--y", `${pikachu.y}px`);
+        const pikachuRect = pikachu.div.querySelector(".hitbox")!.getBoundingClientRect();
+        for (let item of liveItems) {
+            const itemRect = item.getBoundingClientRect();
+            const leftIn = itemRect.left < pikachuRect.right && itemRect.left > pikachuRect.left;
+            const rightIn = itemRect.right > pikachuRect.right && itemRect.right < pikachuRect.left;
+            const topIn = pikachuRect.bottom > itemRect.top;
+            if ((leftIn || rightIn) && topIn) {
+                gameOver();
+                return;
+            }            
+        }
+
+        if (frameCount === nextCaillou) {
+            const caillou = creerCaillou();
+            movingItems.add(caillou);
+            conteneur.append(caillou);
+            timeouts.push(setTimeout(() => {
+                caillou.remove();
+                movingItems.delete(caillou);
+            }, horizontalSpeed * 1000));
+            nextCaillou = getRandomNextFrame(60, 120);
+            debug && console.log(`Next caillou in ${nextCaillou - frameCount} frames (frameCount ${nextCaillou})`);
+        }
+
+        if (frameCount === nextCactus) {
+            const cactus = creerCactus();
+            liveItems.add(cactus);
+            movingItems.add(cactus);
+            conteneur.append(cactus);
+            timeouts.push(setTimeout(() => {
+                cactus.remove();
+                liveItems.delete(cactus);
+                movingItems.delete(cactus);
+            }, horizontalSpeed * 1000));
+            nextCactus = getRandomNextFrame(50, 200);
+            debug && console.log(`Next cactus in ${nextCactus - frameCount} frames (frameCount ${nextCactus})`);
+        }
+
+        setTimeout(() => {
+            requestAnimationFrame(dinosaureLoop);
+        }, 16);
+
+    };
+
+    requestAnimationFrame(dinosaureLoop);
+
+    function gameOver() {
+        isGameOver = true;
+        conteneur.classList.add("gameOver");
+        for (const timeout of timeouts) {
+            clearTimeout(timeout);
+        }
+        document.removeEventListener("keydown", dinosaureLoop);
+    }
+
+    function creerCaillou() {
+        const caillou = document.createElement("div");
+        caillou.classList.add("caillou");
+        return caillou;
+    }
+
+    function creerCactus() {
+        const cactus = document.createElement("div");
+        cactus.classList.add("cactus");
+        cactus.style.setProperty("--height", `${getRandomCapped(1,5)}rem`);
+        return cactus;
+    }
+
+    function getRandomNextFrame(min:number, max:number) {
+        return getRandomCapped(min + frameCount, max + frameCount);
+    }
+
+    function getRandomCapped(min:number, max:number) {
+        const minCeiled = Math.ceil(min);
+        const maxFloored = Math.floor(max);
+        return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
+    }
+}
