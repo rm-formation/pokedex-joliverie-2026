@@ -18,7 +18,7 @@ function initialisation() {
     boutonPokedex.addEventListener("click", () => { naviguer(Pages.pokedex) });
     boutonFavoris.addEventListener("click", () => { naviguer(Pages.favoris) });
 
-    naviguer(Pages.accueil);
+    // naviguer(Pages.accueil);
 
     document.querySelector("footer")?.addEventListener("click", dinosaure);
 }
@@ -113,7 +113,138 @@ function afficherFavoris() {
 }
 
 function afficherFichePokemon(pokemon:Pokemon) {
-    main.innerHTML = `Fiche Pokemon ${pokemon.nom}`;
+    function sanitizeNumber(val:any) {
+        const num = Number(val);
+        if (!isNaN(num)) {
+            return num.toString();
+        } else {
+            return 'INVALID_NUMBER';
+        }
+    }
+
+    function sanitizeType(val:any) {
+        if (val === null) {
+            return ' ';
+        }
+        const typesValides = ["plante", "feu", "eau", "élec.", "Psy", "JeSaisPas"];
+        if (typesValides.includes(val)) {
+            return val as string;
+        } else {
+            return 'INVALID_TYPE';
+        }
+    }
+
+    const conteneur = document.createElement('div');
+    conteneur.classList.add("conteneurFichePokemon");
+    conteneur.innerHTML = `
+        <div class="fichePokemonA">
+            <div class="haut">
+                <div class="blocImage">
+                    <img src="TODO">
+                    <div>No. <span>${sanitizeNumber(pokemon.id)}</span></div>
+                </div>
+                <div class="blocNom bordureFleche">
+                    <div class="nom">TODO</div>
+                    <div class="level">: L</div>
+                    <div class="blocPV">
+                        <span>HP:</span>
+                        <div class="lignePV"></div>
+                    </div>
+                    <div class="totalPV">100/100</div>
+                    <div class="status">STATUS/OK</div>
+                </div>
+            </div>
+            <div class="bas">
+                <div class="blocStats poke-bordure">
+                    <div>
+                        <div>ATTACK</div>
+                        <div>${sanitizeNumber(pokemon.attaque)}</div>
+                    </div>
+                    <div>
+                        <div>DEFENSE</div>
+                        <div>${sanitizeNumber(pokemon.defense)}</div>
+                    </div>
+                    <div>
+                        <div>SPEED</div>
+                        <div>${sanitizeNumber(pokemon.vitesse)}</div>
+                    </div>
+                    <div>
+                        <div>SPECIAL</div>
+                        <div>${sanitizeNumber(pokemon.special)}</div>
+                    </div>
+                </div>
+                <div class="blocType bordureFleche">
+                    <div>
+                        <div>TYPE1/</div>
+                        <div>${sanitizeType(pokemon.type1)}</div>
+                    </div>
+                    <div>
+                        <div>TYPE2/</div>
+                        <div>${sanitizeType(pokemon.type2)}</div>
+                    </div>
+                    <div>
+                        <div>IDNo/</div>
+                        <div>38710</div>
+                    </div>
+                    <div>
+                        <div>OT/</div>
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="fichePokemonB">
+            <div class="haut">
+                <div class="blocImage">
+                    <img src="TODO">
+                    <div><span>No.</span> <span>${sanitizeNumber(pokemon.id)}</span></div>
+                </div>
+                <div class="blocNom">
+                    <div class="nom">TODO</div>
+                    <div class="genre">TODO</div>
+                    <div class="taille">
+                        <span>HT</span>
+                        <span>${sanitizeNumber(pokemon.taille)}</span>
+                    </div>
+                    <div class="poids">
+                        <span>WT</span>
+                        <span>${sanitizeNumber(pokemon.poids)}lb</span>
+                    </div>
+                </div>
+            </div>
+            <div class="barre">
+                <div class="carre carre1 carreGauche"></div>
+                <div class="carre carre2 carreGauche"></div>
+                <div class="carre carre3 carreGauche"></div>
+                <div class="carre carre4 carreGauche"></div>
+                <div class="carre carre1 carreDroite"></div>
+                <div class="carre carre2 carreDroite"></div>
+                <div class="carre carre3 carreDroite"></div>
+                <div class="carre carre4 carreDroite"></div>
+            </div>
+            <div class="bas">
+                TODO
+            </div>
+        </div>
+    `;
+
+    conteneur.querySelectorAll('img').forEach(img => {
+        img.src = pokemon.urlImage;
+    });
+    conteneur.querySelectorAll('.nom').forEach(item => {
+        (item as HTMLElement).innerText = pokemon.nom;
+    });
+    const divGenre = conteneur.querySelector('.genre');
+    if (divGenre && divGenre instanceof HTMLElement) {
+        divGenre.innerText = pokemon.genreEspece;
+    }
+    const blocDescription = conteneur.querySelector('.fichePokemonB .bas');
+    if (blocDescription && blocDescription instanceof HTMLElement) {
+        blocDescription.innerText = pokemon.description;
+    }
+
+    main.innerHTML = "";
+    main.append(conteneur);
 }
 
 type Pokemon = {
@@ -143,7 +274,7 @@ const mockPokemons:Array<Pokemon> = [
         defense: 40,
         vitesse: 50,
         special: 50,
-        type1: "electric",
+        type1: "plante",
         type2: null,
         genreEspece: "Pokémon Souris",
         taille: 4,
@@ -159,7 +290,7 @@ const mockPokemons:Array<Pokemon> = [
         defense: 40,
         vitesse: 50,
         special: 50,
-        type1: "electric",
+        type1: "feu",
         type2: null,
         genreEspece: "Pokémon Souris",
         taille: 4,
@@ -175,7 +306,7 @@ const mockPokemons:Array<Pokemon> = [
         defense: 40,
         vitesse: 50,
         special: 50,
-        type1: "electric",
+        type1: "eau",
         type2: null,
         genreEspece: "Pokémon Souris",
         taille: 4,
@@ -191,7 +322,7 @@ const mockPokemons:Array<Pokemon> = [
         defense: 40,
         vitesse: 50,
         special: 50,
-        type1: "electric",
+        type1: "élec.",
         type2: null,
         genreEspece: "Pokémon Souris",
         taille: 4,
@@ -207,7 +338,7 @@ const mockPokemons:Array<Pokemon> = [
         defense: 40,
         vitesse: 50,
         special: 50,
-        type1: "electric",
+        type1: "Psy",
         type2: null,
         genreEspece: "Pokémon Souris",
         taille: 4,
@@ -223,7 +354,7 @@ const mockPokemons:Array<Pokemon> = [
         defense: 40,
         vitesse: 50,
         special: 50,
-        type1: "electric",
+        type1: "JeSaisPas",
         type2: null,
         genreEspece: "Pokémon Souris",
         taille: 4,
