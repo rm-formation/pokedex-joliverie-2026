@@ -53,6 +53,15 @@ function afficherAccueil() {
     `;
 }
 
+function pokemonApiVersPokemonBase(pokemonApi:any) {
+    const pokemonBase:PokemonBase = {
+        id: pokemonApi.id,
+        nom: pokemonApi.name,
+        urlImage: pokemonApi.sprites.front_default,
+    };
+    return pokemonBase;
+}
+
 async function afficherPokedex() {
     main.innerHTML = "";
 
@@ -60,7 +69,14 @@ async function afficherPokedex() {
     conteneur.classList.add("conteneurListe");
 
     // TODO TP : Charger la liste des 151 premiers pokemons
+    const requeteListePokemons = await requeteHTTPGetSynchrone("https://pokeapi.co/api/v2/pokemon?limit=151");
     const pokemons:Array<PokemonBase> = [];
+
+    for (let apercuPokemon of requeteListePokemons.results) {
+        const pokemonApi = await requeteHTTPGetSynchrone(apercuPokemon.url);
+        const pokemonBase = pokemonApiVersPokemonBase(pokemonApi);
+        pokemons.push(pokemonBase);
+    }
 
     for (let pokemon of pokemons) {
         const divPokemon = document.createElement("div");
