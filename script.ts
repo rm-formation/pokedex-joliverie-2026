@@ -53,30 +53,18 @@ function afficherAccueil() {
     `;
 }
 
-function afficherPokedex() {
+async function afficherPokedex() {
     main.innerHTML = "";
 
     const conteneur = document.createElement("div");
     conteneur.classList.add("conteneurListe");
 
-    for (let pokemon of mockPokemons) {
+    // TODO TP : Charger la liste des 151 premiers pokemons
+    const pokemons:Array<PokemonBase> = [];
+
+    for (let pokemon of pokemons) {
         const divPokemon = document.createElement("div");
         divPokemon.classList.add("divPokemonListe");
-        // divPokemon.innerHTML = `
-        //     <img src="${pokemon.urlImage}">
-        //     <span>${pokemon.nom}</span>
-        //     <span>${pokemon.id}</span>
-        // `;
-
-        // const img = document.createElement("img");
-        // img.src = pokemon.urlImage;
-        // divPokemon.append(img);
-        // const spanNom = document.createElement("span");
-        // spanNom.innerText = pokemon.nom;
-        // divPokemon.append(spanNom);
-        // const spanId = document.createElement("span");
-        // spanId.innerText = pokemon.id.toString();
-        // divPokemon.append(spanId);
 
         divPokemon.innerHTML = `
             <img src="">
@@ -98,21 +86,14 @@ function afficherPokedex() {
     main.append(conteneur);
 }
 
-/*
-<div class="conteneurListe">
-    <div class="divPokemonListe">
-        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-i/red-blue/transparent/25.png">
-        <span>Pikachu</span>
-        <span>25</span>
-    </div>
-</div>
-*/
-
 function afficherFavoris() {
     main.innerHTML = "Favoris";
 }
 
-function afficherFichePokemon(pokemon:Pokemon) {
+async function afficherFichePokemon(pokemonBase:PokemonBase) {
+    // TODO TP : Charger pokemon complet
+    const pokemonComplet:PokemonComplet = {} as any;
+
     function sanitizeNumber(val:any) {
         const num = Number(val);
         if (!isNaN(num)) {
@@ -141,7 +122,7 @@ function afficherFichePokemon(pokemon:Pokemon) {
             <div class="haut">
                 <div class="blocImage">
                     <img src="TODO">
-                    <div>No. <span>${sanitizeNumber(pokemon.id)}</span></div>
+                    <div>No. <span>${sanitizeNumber(pokemonComplet.id)}</span></div>
                 </div>
                 <div class="blocNom bordureFleche">
                     <div class="nom">TODO</div>
@@ -158,29 +139,29 @@ function afficherFichePokemon(pokemon:Pokemon) {
                 <div class="blocStats poke-bordure">
                     <div>
                         <div>ATTACK</div>
-                        <div>${sanitizeNumber(pokemon.attaque)}</div>
+                        <div>${sanitizeNumber(pokemonComplet.attaque)}</div>
                     </div>
                     <div>
                         <div>DEFENSE</div>
-                        <div>${sanitizeNumber(pokemon.defense)}</div>
+                        <div>${sanitizeNumber(pokemonComplet.defense)}</div>
                     </div>
                     <div>
                         <div>SPEED</div>
-                        <div>${sanitizeNumber(pokemon.vitesse)}</div>
+                        <div>${sanitizeNumber(pokemonComplet.vitesse)}</div>
                     </div>
                     <div>
                         <div>SPECIAL</div>
-                        <div>${sanitizeNumber(pokemon.special)}</div>
+                        <div>${sanitizeNumber(pokemonComplet.special)}</div>
                     </div>
                 </div>
                 <div class="blocType bordureFleche">
                     <div>
                         <div>TYPE1/</div>
-                        <div>${sanitizeType(pokemon.type1)}</div>
+                        <div>${sanitizeType(pokemonComplet.type1)}</div>
                     </div>
                     <div>
                         <div>TYPE2/</div>
-                        <div>${sanitizeType(pokemon.type2)}</div>
+                        <div>${sanitizeType(pokemonComplet.type2)}</div>
                     </div>
                     <div>
                         <div>IDNo/</div>
@@ -197,18 +178,18 @@ function afficherFichePokemon(pokemon:Pokemon) {
             <div class="haut">
                 <div class="blocImage">
                     <img src="TODO">
-                    <div><span>No.</span> <span>${sanitizeNumber(pokemon.id)}</span></div>
+                    <div><span>No.</span> <span>${sanitizeNumber(pokemonComplet.id)}</span></div>
                 </div>
                 <div class="blocNom">
                     <div class="nom">TODO</div>
                     <div class="genre">TODO</div>
                     <div class="taille">
                         <span>HT</span>
-                        <span>${sanitizeNumber(pokemon.taille)}</span>
+                        <span>${sanitizeNumber(pokemonComplet.taille)}</span>
                     </div>
                     <div class="poids">
                         <span>WT</span>
-                        <span>${sanitizeNumber(pokemon.poids)}lb</span>
+                        <span>${sanitizeNumber(pokemonComplet.poids)}lb</span>
                     </div>
                 </div>
             </div>
@@ -229,28 +210,31 @@ function afficherFichePokemon(pokemon:Pokemon) {
     `;
 
     conteneur.querySelectorAll('img').forEach(img => {
-        img.src = pokemon.urlImage;
+        img.src = pokemonComplet.urlImage;
     });
     conteneur.querySelectorAll('.nom').forEach(item => {
-        (item as HTMLElement).innerText = pokemon.nom;
+        (item as HTMLElement).innerText = pokemonComplet.nom;
     });
     const divGenre = conteneur.querySelector('.genre');
     if (divGenre && divGenre instanceof HTMLElement) {
-        divGenre.innerText = pokemon.genreEspece;
+        divGenre.innerText = pokemonComplet.genreEspece;
     }
     const blocDescription = conteneur.querySelector('.fichePokemonB .bas');
     if (blocDescription && blocDescription instanceof HTMLElement) {
-        blocDescription.innerText = pokemon.description;
+        blocDescription.innerText = pokemonComplet.description;
     }
 
     main.innerHTML = "";
     main.append(conteneur);
 }
 
-type Pokemon = {
+type PokemonBase = {
     id:number,
     nom:string,
     urlImage:string,
+}
+
+type PokemonComplet = PokemonBase & {
     pv:number,
     attaque:number,
     defense:number,
@@ -264,104 +248,115 @@ type Pokemon = {
     description:string,
 };
 
-const mockPokemons:Array<Pokemon> = [
-    {
-        id: 1,
-        nom: "Bulbizarre",
-        urlImage: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-i/red-blue/transparent/1.png",
-        pv: 35,
-        attaque: 55,
-        defense: 40,
-        vitesse: 50,
-        special: 50,
-        type1: "plante",
-        type2: null,
-        genreEspece: "Pokémon Souris",
-        taille: 4,
-        poids: 60,
-        description: "Pikachu a de petites poches pleines d’électricité sur\nses joues. S’il se sent menacé, il laisse s’échapper\ndes décharges électriques."
-    },
-    {
-        id: 4,
-        nom: "Salamèche",
-        urlImage: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-i/red-blue/transparent/4.png",
-        pv: 35,
-        attaque: 55,
-        defense: 40,
-        vitesse: 50,
-        special: 50,
-        type1: "feu",
-        type2: null,
-        genreEspece: "Pokémon Souris",
-        taille: 4,
-        poids: 60,
-        description: "Pikachu a de petites poches pleines d’électricité sur\nses joues. S’il se sent menacé, il laisse s’échapper\ndes décharges électriques."
-    },
-    {
-        id: 7,
-        nom: "Carapuce",
-        urlImage: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-i/red-blue/transparent/7.png",
-        pv: 35,
-        attaque: 55,
-        defense: 40,
-        vitesse: 50,
-        special: 50,
-        type1: "eau",
-        type2: null,
-        genreEspece: "Pokémon Souris",
-        taille: 4,
-        poids: 60,
-        description: "Pikachu a de petites poches pleines d’électricité sur\nses joues. S’il se sent menacé, il laisse s’échapper\ndes décharges électriques."
-    },
-    {
-        id: 25,
-        nom: "Pikachu",
-        urlImage: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-i/red-blue/transparent/25.png",
-        pv: 35,
-        attaque: 55,
-        defense: 40,
-        vitesse: 50,
-        special: 50,
-        type1: "élec.",
-        type2: null,
-        genreEspece: "Pokémon Souris",
-        taille: 4,
-        poids: 60,
-        description: "Pikachu a de petites poches pleines d’électricité sur\nses joues. S’il se sent menacé, il laisse s’échapper\ndes décharges électriques."
-    },
-    {
-        id: 150,
-        nom: "Mewtwo",
-        urlImage: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-i/red-blue/transparent/150.png",
-        pv: 35,
-        attaque: 55,
-        defense: 40,
-        vitesse: 50,
-        special: 50,
-        type1: "Psy",
-        type2: null,
-        genreEspece: "Pokémon Souris",
-        taille: 4,
-        poids: 60,
-        description: "Pikachu a de petites poches pleines d’électricité sur\nses joues. S’il se sent menacé, il laisse s’échapper\ndes décharges électriques."
-    },
-    {
-        id: 151,
-        nom: "Mew",
-        urlImage: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-i/red-blue/transparent/151.png",
-        pv: 35,
-        attaque: 55,
-        defense: 40,
-        vitesse: 50,
-        special: 50,
-        type1: "JeSaisPas",
-        type2: null,
-        genreEspece: "Pokémon Souris",
-        taille: 4,
-        poids: 60,
-        description: "Pikachu a de petites poches pleines d’électricité sur\nses joues. S’il se sent menacé, il laisse s’échapper\ndes décharges électriques."
+async function requeteHTTPGetSynchrone(url:string):Promise<any> {
+    try {
+        const response = await fetch(url);
+        const json = await response.json();
+        return json;
+    } catch(e) {
+        throw new Error("[requeteHTTPGetSynchrone] - Une erreur est survenue");
+        console.error(e);
     }
-];
+}
+
+// const mockPokemons:Array<PokemonComplet> = [
+//     {
+//         id: 1,
+//         nom: "Bulbizarre",
+//         urlImage: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-i/red-blue/transparent/1.png",
+//         pv: 35,
+//         attaque: 55,
+//         defense: 40,
+//         vitesse: 50,
+//         special: 50,
+//         type1: "plante",
+//         type2: null,
+//         genreEspece: "Pokémon Souris",
+//         taille: 4,
+//         poids: 60,
+//         description: "Pikachu a de petites poches pleines d’électricité sur\nses joues. S’il se sent menacé, il laisse s’échapper\ndes décharges électriques."
+//     },
+//     {
+//         id: 4,
+//         nom: "Salamèche",
+//         urlImage: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-i/red-blue/transparent/4.png",
+//         pv: 35,
+//         attaque: 55,
+//         defense: 40,
+//         vitesse: 50,
+//         special: 50,
+//         type1: "feu",
+//         type2: null,
+//         genreEspece: "Pokémon Souris",
+//         taille: 4,
+//         poids: 60,
+//         description: "Pikachu a de petites poches pleines d’électricité sur\nses joues. S’il se sent menacé, il laisse s’échapper\ndes décharges électriques."
+//     },
+//     {
+//         id: 7,
+//         nom: "Carapuce",
+//         urlImage: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-i/red-blue/transparent/7.png",
+//         pv: 35,
+//         attaque: 55,
+//         defense: 40,
+//         vitesse: 50,
+//         special: 50,
+//         type1: "eau",
+//         type2: null,
+//         genreEspece: "Pokémon Souris",
+//         taille: 4,
+//         poids: 60,
+//         description: "Pikachu a de petites poches pleines d’électricité sur\nses joues. S’il se sent menacé, il laisse s’échapper\ndes décharges électriques."
+//     },
+//     {
+//         id: 25,
+//         nom: "Pikachu",
+//         urlImage: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-i/red-blue/transparent/25.png",
+//         pv: 35,
+//         attaque: 55,
+//         defense: 40,
+//         vitesse: 50,
+//         special: 50,
+//         type1: "élec.",
+//         type2: null,
+//         genreEspece: "Pokémon Souris",
+//         taille: 4,
+//         poids: 60,
+//         description: "Pikachu a de petites poches pleines d’électricité sur\nses joues. S’il se sent menacé, il laisse s’échapper\ndes décharges électriques."
+//     },
+//     {
+//         id: 150,
+//         nom: "Mewtwo",
+//         urlImage: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-i/red-blue/transparent/150.png",
+//         pv: 35,
+//         attaque: 55,
+//         defense: 40,
+//         vitesse: 50,
+//         special: 50,
+//         type1: "Psy",
+//         type2: null,
+//         genreEspece: "Pokémon Souris",
+//         taille: 4,
+//         poids: 60,
+//         description: "Pikachu a de petites poches pleines d’électricité sur\nses joues. S’il se sent menacé, il laisse s’échapper\ndes décharges électriques."
+//     },
+//     {
+//         id: 151,
+//         nom: "Mew",
+//         urlImage: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-i/red-blue/transparent/151.png",
+//         pv: 35,
+//         attaque: 55,
+//         defense: 40,
+//         vitesse: 50,
+//         special: 50,
+//         type1: "JeSaisPas",
+//         type2: null,
+//         genreEspece: "Pokémon Souris",
+//         taille: 4,
+//         poids: 60,
+//         description: "Pikachu a de petites poches pleines d’électricité sur\nses joues. S’il se sent menacé, il laisse s’échapper\ndes décharges électriques."
+//     }
+// ];
 
 function dinosaure() {
     const horizontalSpeed = 4;
