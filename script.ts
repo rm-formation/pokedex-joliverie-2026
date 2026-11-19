@@ -18,7 +18,7 @@ function initialisation() {
     boutonPokedex.addEventListener("click", () => { naviguer(Pages.pokedex) });
     boutonFavoris.addEventListener("click", () => { naviguer(Pages.favoris) });
 
-    // naviguer(Pages.accueil);
+    naviguer(Pages.accueil);
 
     document.querySelector("footer")?.addEventListener("click", dinosaure);
 }
